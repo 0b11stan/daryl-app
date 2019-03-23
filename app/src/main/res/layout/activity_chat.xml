@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/status_right"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:paddingTop="5dp"
+        android:paddingEnd="20dp"
+        android:paddingRight="20dp"
+        android:text="chat"
+        android:textAlignment="textEnd"
+        android:textColor="@color/black" />
+
+    <TextInputLayout
+        android:layout_width="395dp"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="670dp">
+
+        <android.support.design.widget.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="test" />
+    </TextInputLayout>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="392dp"
+        android:layout_height="613dp"
+        android:text="TextView"
+        tools:layout_editor_absoluteX="10dp"
+        tools:layout_editor_absoluteY="38dp" />
+
+</android.support.constraint.ConstraintLayout>

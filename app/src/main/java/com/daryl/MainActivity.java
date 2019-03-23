@@ -1,13 +1,14 @@
 package com.daryl;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.Toast;
+import android.widget.TextView;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,25 +18,31 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        while (true) {
-//            final Intent intent = new Intent("Test");
-//            sendBroadcast(intent);
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                System.err.println("Error");
-//            }
-//        }
+        long survivalDays = getSurvivalDays();
+        TextView left = findViewById(R.id.status_left);
+        left.setText(String.valueOf(survivalDays).concat(" days"));
 
-        final ImageButton button = findViewById(R.id.zombie_spotter);
-        button.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.zombie_spotter).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent zombieSpotter = new Intent(MainActivity.this, ZombieSpotterActivity.class);
                 startActivity(zombieSpotter);
-                System.out.println("test ok");
+            }
+        });
+
+        findViewById(R.id.chat).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent chat = new Intent(MainActivity.this, ChatActivity.class);
+                startActivity(chat);
             }
         });
 
     }
+
+    protected long getSurvivalDays() {
+        LocalDate doomDate = LocalDate.of(2019, 3, 20);
+        LocalDate currentDate = LocalDate.now();
+        return ChronoUnit.DAYS.between(doomDate, currentDate);
+    }
+
 
 }

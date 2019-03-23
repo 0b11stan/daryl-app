@@ -15,9 +15,9 @@
         android:paddingStart="20dp"
         android:paddingLeft="20dp"
         android:paddingTop="5dp"
-        android:text="@string/status_left"
         android:textAlignment="textStart"
         android:textColor="@color/white" />
+    <!--android:text="@string/status_left"-->
 
     <!--<TextView-->
     <!--android:id="@+id/status_center"-->
