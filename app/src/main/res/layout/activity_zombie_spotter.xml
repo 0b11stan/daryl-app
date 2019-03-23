@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/status_right"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:paddingTop="5dp"
+        android:paddingEnd="20dp"
+        android:paddingRight="20dp"
+        android:text="end of the world"
+        android:textAlignment="textEnd"
+        android:textColor="@color/black" />
+
+</android.support.constraint.ConstraintLayout>
