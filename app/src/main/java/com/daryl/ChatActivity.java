@@ -2,21 +2,13 @@ package com.daryl;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -30,8 +22,6 @@ import com.hypelabs.hype.NetworkObserver;
 import com.hypelabs.hype.StateObserver;
 import com.hypelabs.hype.Version;
 
-import org.w3c.dom.Text;
-
 import java.nio.charset.StandardCharsets;
 
 
@@ -44,11 +34,12 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION_ID);
         }
+
+        setContentView(R.layout.ask_username);
 
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("secret", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -66,10 +57,21 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
         Log.i(TAG, sharedPreferences.getString(getString(R.string.user_name), ""));
 
 
-        openUsernameDialog();
+        findViewById(R.id.username_button).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                TextView usernameField = (TextView) findViewById(R.id.username_field);
+                SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("secret", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(usernameField.getText().toString(), "");
+                editor.commit();
+                startChat();
+            }
+        });
+    }
 
+    public void startChat() {
         startHype();
-
+        setContentView(R.layout.activity_chat);
         findViewById(R.id.button_message).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 sendMessage();
@@ -77,35 +79,35 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
         });
     }
 
-    public void openUsernameDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        final EditText test = (EditText) (inflater.inflate(R.layout.dialog_name, null)).findViewById(getString(R.id.username));
-        builder.setView(test)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("secret", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        Log.i(TAG, "######### SECRET 3 #######");
-                        Log.i(TAG, test.getText().toString());
-                        editor.putString(getString(R.string.user_name), test.getText().toString());
-                        editor.commit();
-
-                        Log.i(TAG, "######### SECRET 4 #######");
-                        Log.i(TAG, sharedPreferences.getString(getString(R.string.user_name), ""));
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-        builder.show();
-    }
+//    public void openUsernameDialog() {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        LayoutInflater inflater = getLayoutInflater();
+//        final EditText test = (EditText) (inflater.inflate(R.layout.dialog_name, null)).findViewById(getString(R.id.username));
+//        builder.setView(test)
+//                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//
+//                        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("secret", Context.MODE_PRIVATE);
+//                        SharedPreferences.Editor editor = sharedPreferences.edit();
+//                        Log.i(TAG, "######### SECRET 3 #######");
+//                        Log.i(TAG, test.getText().toString());
+//                        editor.putString(getString(R.string.user_name), test.getText().toString());
+//                        editor.commit();
+//
+//                        Log.i(TAG, "######### SECRET 4 #######");
+//                        Log.i(TAG, sharedPreferences.getString(getString(R.string.user_name), ""));
+//                    }
+//                })
+//                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        dialog.cancel();
+//                    }
+//                });
+//
+//        builder.show();
+//    }
 
 
     private void startHype() {

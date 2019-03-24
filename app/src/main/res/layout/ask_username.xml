@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/gray"
+            android:padding="10dp"
+            android:text="Enter your name"
+            android:textColor="@color/white"
+            android:textSize="32dp"
+            android:textStyle="bold" />
+
+
+        <EditText
+            android:id="@+id/username_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="4dp"
+            android:backgroundTint="@color/lightGray"
+            android:hint="username"
+            android:textColor="@color/white"
+            android:textColorHint="@color/lightGray" />
+
+        <Button
+            android:id="@+id/username_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:layout_gravity="bottom"
+            android:textSize="20dp"
+            android:text="REGISTER"
+            android:background="@color/gray"/>
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
