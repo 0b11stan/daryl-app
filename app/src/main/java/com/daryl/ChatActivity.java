@@ -1,7 +1,6 @@
 package com.daryl;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +15,7 @@ import com.hypelabs.hype.MessageInfo;
 import com.hypelabs.hype.MessageObserver;
 import com.hypelabs.hype.NetworkObserver;
 import com.hypelabs.hype.StateObserver;
+import com.hypelabs.hype.Version;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +30,8 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        startHype();
+
         findViewById(R.id.button_message).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 fakeSendMessage();
@@ -37,6 +39,20 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
             }
         });
 
+    }
+
+    private void startHype() {
+        Log.i(TAG, "Hype is starting");
+        Hype.setContext(getApplicationContext());
+        Hype.addMessageObserver(this);
+        Hype.addNetworkObserver(this);
+        Hype.addStateObserver(this);
+        Hype.setAppIdentifier("b36a27c7");
+        Hype.setAnnouncement(new byte[10]);
+
+        Hype.start();
+
+        Log.i(TAG, "Version = " + Version.getVersionString());
     }
 
     protected void fakeSendMessage() {
