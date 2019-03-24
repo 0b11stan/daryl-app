@@ -49,7 +49,7 @@ class UIThreadUtils {
                 final ScrollView conversation_scroll = activity.findViewById(R.id.scroll);
                 final LinearLayout conversation = activity.findViewById(R.id.conversation);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-
+                //TODO: implement author storage recup for comparison and colors application
                 final TextView messageView = new TextView(activity.getApplicationContext());
                 messageView.setText(sender + " : " + message);
                 messageView.setLayoutParams(params);

@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.hypelabs.hype.Error;
 import com.hypelabs.hype.Hype;
 import com.hypelabs.hype.Instance;
@@ -68,15 +69,24 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
         String message_text = message_input.getText().toString();
         if (message_text.isEmpty()) return;
 
-        UIThreadUtils.updateConversation(this, Hype.getHostInstance().getStringIdentifier(), message_text);
         UIThreadUtils.setText(this, message_input, "");
+
+        DarylMessage darylMessage = new DarylMessage();
+        darylMessage.author = "test author";
+        darylMessage.content = message_text;
+
+        Gson gson = new Gson();
+        String json_message = gson.toJson(darylMessage);
 
         byte[] data = new byte[0];
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-            data = message_text.getBytes(StandardCharsets.UTF_8);
+            data = json_message.getBytes(StandardCharsets.UTF_8);
         }
 
         Hype.send(data, this.instance);
+
+        UIThreadUtils.updateConversation(this, darylMessage.author, darylMessage.content);
+
     }
 
 
@@ -96,8 +106,11 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
             text = new String(message.getData(), StandardCharsets.UTF_8);
         }
 
-        Log.i(TAG, String.format("Hype received a message from: %s %s", instance.getStringIdentifier(), text));
-        UIThreadUtils.updateConversation(this, instance.getStringIdentifier(), text);
+        Gson gson = new Gson();
+        DarylMessage response = gson.fromJson(text, DarylMessage.class);
+
+        Log.i(TAG, String.format("Hype received a message from: %s %s", instance.getStringIdentifier(), response.content));
+        UIThreadUtils.updateConversation(this, response.author, response.content);
     }
 
 
