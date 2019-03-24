@@ -2,11 +2,14 @@ package com.daryl;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.hypelabs.hype.Hype;
 
 class UIThreadUtils {
     static void appendText(Activity activity, final TextView text, final String value) {
@@ -46,9 +49,17 @@ class UIThreadUtils {
                 final ScrollView conversation_scroll = activity.findViewById(R.id.scroll);
                 final LinearLayout conversation = activity.findViewById(R.id.conversation);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+
                 final TextView messageView = new TextView(activity.getApplicationContext());
-                messageView.setText( sender + " : " + message);
+                messageView.setText(sender + " : " + message);
                 messageView.setLayoutParams(params);
+                if (Hype.getHostInstance().getStringIdentifier().equals(sender)) {
+                    messageView.setBackgroundColor(activity.getResources().getColor(R.color.white));
+                    messageView.setTextColor(activity.getResources().getColor(R.color.black));
+                } else {
+                    messageView.setBackgroundColor(activity.getResources().getColor(R.color.gray));
+                    messageView.setTextColor(activity.getResources().getColor(R.color.white));
+                }
                 conversation.addView(messageView);
                 conversation_scroll.fullScroll(ScrollView.FOCUS_DOWN);
             }
