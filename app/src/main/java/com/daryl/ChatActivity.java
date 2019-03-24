@@ -2,11 +2,15 @@ package com.daryl;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.UiThread;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hypelabs.hype.Error;
 import com.hypelabs.hype.Hype;
@@ -32,7 +36,9 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION_ID);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION_ID);
+        }
         startHype();
 
         findViewById(R.id.button_message).setOnClickListener(new View.OnClickListener() {
@@ -64,10 +70,13 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
         String message_text = message_input.getText().toString() + "\n";
 
         TextView conversation = findViewById(R.id.conversation);
-        appendText(conversation, message_text);
-        setText(message_input, "");
+        UIThreadUtils.appendText(this, conversation, message_text);
+        UIThreadUtils.setText(this, message_input, "");
 
-        byte[] data = message_text.getBytes(StandardCharsets.UTF_8);
+        byte[] data = new byte[0];
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            data = message_text.getBytes(StandardCharsets.UTF_8);
+        }
 
         return Hype.send(data, this.instance, acknowledge);
     }
@@ -84,30 +93,16 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
 
     @Override
     public void onHypeMessageReceived(Message message, Instance instance) {
-        String text = new String(message.getData(), StandardCharsets.UTF_8);
+        String text = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            text = new String(message.getData(), StandardCharsets.UTF_8);
+        }
 
         Log.i(TAG, String.format("Hype received a message from: %s %s", instance.getStringIdentifier(), text));
         TextView conversation = findViewById(R.id.conversation);
-        appendText(conversation, text);
+        UIThreadUtils.appendText(this, conversation, text);
     }
 
-    private void appendText(final TextView text, final String value) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                text.append(value);
-            }
-        });
-    }
-
-    private void setText(final TextView text, final String value) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                text.setText(value);
-            }
-        });
-    }
 
     @Override
     public void onHypeMessageFailedSending(MessageInfo messageInfo, Instance instance, Error error) {
@@ -146,6 +141,9 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
     public void onHypeInstanceResolved(Instance instance) {
         Log.i(TAG, String.format("Hype resolved instance: %s", instance.getStringIdentifier()));
         this.instance = instance;
+
+        UIThreadUtils.showToast(this, "Connected to " + instance.getStringIdentifier());
+
     }
 
     @Override
