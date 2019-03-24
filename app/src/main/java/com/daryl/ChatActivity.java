@@ -18,7 +18,6 @@ import com.hypelabs.hype.NetworkObserver;
 import com.hypelabs.hype.StateObserver;
 import com.hypelabs.hype.Version;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 
@@ -26,19 +25,19 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
 
     private static final String TAG = ChatActivity.class.getName();
     private static final int REQUEST_ACCESS_COARSE_LOCATION_ID = 0;
+    private Instance instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        requestPermissions(new String[] {Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION_ID);
+        requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION_ID);
         startHype();
 
         findViewById(R.id.button_message).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                fakeSendMessage();
-//                sendMessage(message_text);
+                sendMessage();
             }
         });
 
@@ -58,66 +57,56 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
         Log.i(TAG, "Version = " + Version.getVersionString());
     }
 
-    protected void fakeSendMessage() {
+    protected Message sendMessage(/*boolean acknowledge*/) {
+        boolean acknowledge = false;
+
         EditText message_input = findViewById(R.id.input_message);
-        String message_text = message_input.getText().toString();
+        String message_text = message_input.getText().toString() + "\n";
 
         TextView conversation = findViewById(R.id.conversation);
-        conversation.append(message_text + "\n");
-        message_input.setText("");
-    }
+        appendText(conversation, message_text);
+        setText(message_input, "");
 
-    protected Message sendMessage(String text, Instance instance, boolean acknowledge) throws UnsupportedEncodingException {
+        byte[] data = message_text.getBytes(StandardCharsets.UTF_8);
 
-        // When sending content there must be some sort of protocol that both parties
-        // understand. In this case, we simply send the text encoded in UTF-8. The data
-        // must be decoded when received, using the same encoding.
-        byte[] data = text.getBytes(StandardCharsets.UTF_8);
-
-        return Hype.send(data, instance, acknowledge);
+        return Hype.send(data, this.instance, acknowledge);
     }
 
 
     protected void requestHypeToStart() {
-        // The application context is used to query the user for permissions, such as using
-        // the Bluetooth adapter or enabling Wi-Fi. The context must be set before anything
-        // else is attempted, otherwise resulting in an exception being thrown.
         Hype.setContext(getApplicationContext());
-
-        // Adding itself as an Hype state observer makes sure that the application gets
-        // notifications for lifecycle events being triggered by the Hype SDK. These
-        // events include starting and stopping, as well as some error handling.
         Hype.addStateObserver(this);
-
-        // Network observer notifications include other devices entering and leaving the
-        // network. When a device is found all observers get a onHypeInstanceFound
-        // notification, and when they leave onHypeInstanceLost is triggered instead.
-        // This observer also gets notifications for onHypeInstanceResolved when an
-        // instance is resolved.
         Hype.addNetworkObserver(this);
-
-        // Message notifications indicate when messages are received, sent, or delivered.
-        // Such callbacks are called with progress tracking indication.
         Hype.addMessageObserver(this);
-
-        // App identifiers are used to segregate the network. Apps with different identifiers
-        // do not communicate with each other, although they still cooperate on the network.
         Hype.setAppIdentifier("b36a27c7");
-
-        // Requesting Hype to start is equivalent to requesting the device to publish
-        // itself on the network and start browsing for other devices in proximity. If
-        // everything goes well, the onHypeStart() observer method gets called, indicating
-        // that the device is actively participating on the network.
         Hype.start();
     }
 
     @Override
     public void onHypeMessageReceived(Message message, Instance instance) {
-        String text = null;
-        text = new String(message.getData(), StandardCharsets.UTF_8);
+        String text = new String(message.getData(), StandardCharsets.UTF_8);
 
-        // If all goes well, this will log the original text
         Log.i(TAG, String.format("Hype received a message from: %s %s", instance.getStringIdentifier(), text));
+        TextView conversation = findViewById(R.id.conversation);
+        appendText(conversation, text);
+    }
+
+    private void appendText(final TextView text, final String value) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                text.append(value);
+            }
+        });
+    }
+
+    private void setText(final TextView text, final String value) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                text.setText(value);
+            }
+        });
     }
 
     @Override
@@ -139,8 +128,6 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
     public void onHypeInstanceFound(Instance instance) {
         Log.i(TAG, "User = " + Hype.getHostInstance().getStringIdentifier());
         Log.i(TAG, String.format("Hype found instance: %s", instance.getStringIdentifier()));
-        // Instances need to be resolved before being ready for communicating. This will
-        // force the two of them to perform an handshake.
         if (shouldResolveInstance(instance)) {
             Hype.resolve(instance);
         }
@@ -158,6 +145,7 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
     @Override
     public void onHypeInstanceResolved(Instance instance) {
         Log.i(TAG, String.format("Hype resolved instance: %s", instance.getStringIdentifier()));
+        this.instance = instance;
     }
 
     @Override
