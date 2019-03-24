@@ -1,5 +1,6 @@
 package com.daryl;
 
+import android.Manifest;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,12 +25,14 @@ import java.nio.charset.StandardCharsets;
 public class ChatActivity extends Activity implements StateObserver, NetworkObserver, MessageObserver {
 
     private static final String TAG = ChatActivity.class.getName();
+    private static final int REQUEST_ACCESS_COARSE_LOCATION_ID = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        requestPermissions(new String[] {Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION_ID);
         startHype();
 
         findViewById(R.id.button_message).setOnClickListener(new View.OnClickListener() {
@@ -134,6 +137,7 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
 
     @Override
     public void onHypeInstanceFound(Instance instance) {
+        Log.i(TAG, "User = " + Hype.getHostInstance().getStringIdentifier());
         Log.i(TAG, String.format("Hype found instance: %s", instance.getStringIdentifier()));
         // Instances need to be resolved before being ready for communicating. This will
         // force the two of them to perform an handshake.
