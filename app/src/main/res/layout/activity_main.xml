@@ -17,16 +17,6 @@
         android:paddingTop="5dp"
         android:textAlignment="textStart"
         android:textColor="@color/white" />
-    <!--android:text="@string/status_left"-->
-
-    <!--<TextView-->
-    <!--android:id="@+id/status_center"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:paddingTop="5dp"-->
-    <!--android:text="@string/status_center"-->
-    <!--android:textAlignment="center"-->
-    <!--android:textColor="@color/white" />-->
 
     <TextView
         android:id="@+id/status_right"

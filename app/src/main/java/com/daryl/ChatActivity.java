@@ -2,15 +2,15 @@ package com.daryl;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.UiThread;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.hypelabs.hype.Error;
 import com.hypelabs.hype.Hype;
@@ -46,8 +46,8 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
                 sendMessage();
             }
         });
-
     }
+
 
     private void startHype() {
         Log.i(TAG, "Hype is starting");
@@ -63,14 +63,12 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
         Log.i(TAG, "Version = " + Version.getVersionString());
     }
 
-    protected Message sendMessage(/*boolean acknowledge*/) {
-        boolean acknowledge = false;
-
+    protected void sendMessage() {
         EditText message_input = findViewById(R.id.input_message);
-        String message_text = message_input.getText().toString() + "\n";
+        String message_text = message_input.getText().toString();
+        if (message_text.isEmpty()) return;
 
-        TextView conversation = findViewById(R.id.conversation);
-        UIThreadUtils.appendText(this, conversation, message_text);
+        UIThreadUtils.updateConversation(this, Hype.getHostInstance().getStringIdentifier(), message_text);
         UIThreadUtils.setText(this, message_input, "");
 
         byte[] data = new byte[0];
@@ -78,7 +76,7 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
             data = message_text.getBytes(StandardCharsets.UTF_8);
         }
 
-        return Hype.send(data, this.instance, acknowledge);
+        Hype.send(data, this.instance);
     }
 
 
@@ -99,8 +97,7 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
         }
 
         Log.i(TAG, String.format("Hype received a message from: %s %s", instance.getStringIdentifier(), text));
-        TextView conversation = findViewById(R.id.conversation);
-        UIThreadUtils.appendText(this, conversation, text);
+        UIThreadUtils.updateConversation(this, instance.getStringIdentifier(), text);
     }
 
 
