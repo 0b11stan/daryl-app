@@ -2,9 +2,16 @@ package com.daryl;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -23,6 +30,8 @@ import com.hypelabs.hype.NetworkObserver;
 import com.hypelabs.hype.StateObserver;
 import com.hypelabs.hype.Version;
 
+import org.w3c.dom.Text;
+
 import java.nio.charset.StandardCharsets;
 
 
@@ -40,6 +49,25 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION_ID);
         }
+
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("secret", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(getString(R.string.user_name), "");
+        editor.commit();
+
+
+        Log.i(TAG, "######### SECRET 1 #######");
+        Log.i(TAG, sharedPreferences.getString(getString(R.string.user_name), ""));
+
+        editor.putString(getString(R.string.user_name), "toto");
+        editor.commit();
+
+        Log.i(TAG, "######### SECRET 2 #######");
+        Log.i(TAG, sharedPreferences.getString(getString(R.string.user_name), ""));
+
+
+        openUsernameDialog();
+
         startHype();
 
         findViewById(R.id.button_message).setOnClickListener(new View.OnClickListener() {
@@ -47,6 +75,36 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
                 sendMessage();
             }
         });
+    }
+
+    public void openUsernameDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        final EditText test = (EditText) (inflater.inflate(R.layout.dialog_name, null)).findViewById(getString(R.id.username));
+        builder.setView(test)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("secret", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        Log.i(TAG, "######### SECRET 3 #######");
+                        Log.i(TAG, test.getText().toString());
+                        editor.putString(getString(R.string.user_name), test.getText().toString());
+                        editor.commit();
+
+                        Log.i(TAG, "######### SECRET 4 #######");
+                        Log.i(TAG, sharedPreferences.getString(getString(R.string.user_name), ""));
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+        builder.show();
     }
 
 
