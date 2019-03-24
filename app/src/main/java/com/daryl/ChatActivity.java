@@ -1,8 +1,12 @@
 package com.daryl;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.hypelabs.hype.Error;
 import com.hypelabs.hype.Hype;
@@ -13,6 +17,9 @@ import com.hypelabs.hype.MessageObserver;
 import com.hypelabs.hype.NetworkObserver;
 import com.hypelabs.hype.StateObserver;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+
 
 public class ChatActivity extends Activity implements StateObserver, NetworkObserver, MessageObserver {
 
@@ -22,7 +29,35 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        findViewById(R.id.button_message).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                fakeSendMessage();
+//                sendMessage(message_text);
+            }
+        });
+
     }
+
+    protected void fakeSendMessage() {
+        EditText message_input = findViewById(R.id.input_message);
+        String message_text = message_input.getText().toString();
+
+        TextView conversation = findViewById(R.id.conversation);
+        conversation.append(message_text + "\n");
+        message_input.setText("");
+    }
+
+    protected Message sendMessage(String text, Instance instance, boolean acknowledge) throws UnsupportedEncodingException {
+
+        // When sending content there must be some sort of protocol that both parties
+        // understand. In this case, we simply send the text encoded in UTF-8. The data
+        // must be decoded when received, using the same encoding.
+        byte[] data = text.getBytes(StandardCharsets.UTF_8);
+
+        return Hype.send(data, instance, acknowledge);
+    }
+
 
     protected void requestHypeToStart() {
         // The application context is used to query the user for permissions, such as using
@@ -59,7 +94,11 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
 
     @Override
     public void onHypeMessageReceived(Message message, Instance instance) {
+        String text = null;
+        text = new String(message.getData(), StandardCharsets.UTF_8);
 
+        // If all goes well, this will log the original text
+        Log.i(TAG, String.format("Hype received a message from: %s %s", instance.getStringIdentifier(), text));
     }
 
     @Override
@@ -79,17 +118,26 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
 
     @Override
     public void onHypeInstanceFound(Instance instance) {
+        Log.i(TAG, String.format("Hype found instance: %s", instance.getStringIdentifier()));
+        // Instances need to be resolved before being ready for communicating. This will
+        // force the two of them to perform an handshake.
+        if (shouldResolveInstance(instance)) {
+            Hype.resolve(instance);
+        }
+    }
 
+    private boolean shouldResolveInstance(Instance instance) {
+        return true;
     }
 
     @Override
     public void onHypeInstanceLost(Instance instance, Error error) {
-
+        Log.i(TAG, String.format("Hype lost instance: %s [%s]", instance.getStringIdentifier(), error.toString()));
     }
 
     @Override
     public void onHypeInstanceResolved(Instance instance) {
-
+        Log.i(TAG, String.format("Hype resolved instance: %s", instance.getStringIdentifier()));
     }
 
     @Override
@@ -124,6 +172,6 @@ public class ChatActivity extends Activity implements StateObserver, NetworkObse
 
     @Override
     public String onHypeRequestAccessToken(int i) {
-        return null;
+        return "627faf69e4636246";
     }
 }

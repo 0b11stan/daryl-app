@@ -3,4 +3,5 @@
     <string name="status_left">22 days</string>
     <string name="status_center">center</string>
     <string name="status_right">10°</string>
+    <string name="message_input">Type a message …</string>
 </resources>
